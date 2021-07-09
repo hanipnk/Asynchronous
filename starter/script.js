@@ -75,6 +75,8 @@ getCountryData('usa');
 
 */
 
+/*
+
 // Callback Hell
 
 const getCountryAndNeighbour = function (contry) {
@@ -115,20 +117,22 @@ const getCountryAndNeighbour = function (contry) {
   });
 };
 
-//getCountryAndNeighbour('usa');
+getCountryAndNeighbour('usa');
 
-// setTimeout(() => {
-//   console.log('1 secound passed');
-//   setTimeout(() => {
-//     console.log('2 secound passed');
-//     setTimeout(() => {
-//       console.log('3 secound passed');
-//       setTimeout(() => {
-//         console.log('4 secound passed');
-//       }, 1000);
-//     }, 1000);
-//   }, 1000);
-// }, 1000);
+setTimeout(() => {
+  console.log('1 secound passed');
+  setTimeout(() => {
+    console.log('2 secound passed');
+    setTimeout(() => {
+      console.log('3 secound passed');
+      setTimeout(() => {
+        console.log('4 secound passed');
+      }, 1000);
+    }, 1000);
+  }, 1000);
+}, 1000);
+
+*/
 
 // Promises and the Fetch API
 
@@ -156,7 +160,7 @@ const getCountryAndNeighbour = function (contry) {
 //     });
 // };
 
-const request = fetch('https://restcountries.eu/rest/v2/name/portugal');
+//const request = fetch('https://restcountries.eu/rest/v2/name/portugal');
 
 // const getCountryData = function (country) {
 //   // Country 1
@@ -201,6 +205,7 @@ const request = fetch('https://restcountries.eu/rest/v2/name/portugal');
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+/*
 const getJSON = function (url, errorMsg = 'Something when wrong') {
   return fetch(url).then(response => {
     if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
@@ -246,6 +251,10 @@ btn.addEventListener('click', function () {
 
 // getCountryData('australia');
 
+*/
+
+/*
+
 // Coding Challenge 1
 
 const whereAmi = function (lat, lng) {
@@ -277,3 +286,130 @@ const whereAmi = function (lat, lng) {
 whereAmi(52.508, 13.381);
 whereAmi(19.037, 72.873);
 whereAmi(-33.933, 18.474);
+
+*/
+
+/*
+
+console.log('Text start');
+setTimeout(() => console.log('0 sec timer'), 0);
+Promise.resolve('Resloved promise 1').then(res => console.log(res));
+
+Promise.resolve('Resolved promise 2').then(res => {
+  for (let i = 0; i < 100000000; i++) {}
+  console.log(res);
+});
+
+console.log('Text end');
+
+*/
+
+/*
+
+// Promises takes only one argument which is called 'executor function'
+// In the 'executor function' there are two arguments resolve(fullfilled) and reject(rejected)
+
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery draw is happening');
+  setTimeout(function () {
+    if (Math.random() >= 0.5) {
+      resolve('You WIN!');
+    } else {
+      reject(new Error('You lost your money :('));
+    }
+  }, 2000);
+});
+
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// Promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+wait(1)
+  .then(() => {
+    console.log('1 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('2second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('3second passed');
+    return wait(1);
+  })
+  .then(() => console.log('4second passed'));
+
+// setTimeout(() => {
+//   console.log('1 secound passed');
+//   setTimeout(() => {
+//     console.log('2 secound passed');
+//     setTimeout(() => {
+//       console.log('3 secound passed');
+//       setTimeout(() => {
+//         console.log('4 secound passed');
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject(new Error('Problem!')).catch(x => console.error(x));
+
+*/
+
+// Promisifying from callback based API to promise based API
+navigator.geolocation.getCurrentPosition(
+  position => console.log(position),
+  err => console.error(err)
+);
+console.log('Getting position');
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err)
+    //);
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+getPosition().then(pos => console.log(pos));
+
+const whereAmi = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
+
+    .then(response => {
+      //console.log(response);
+      if (!response.ok)
+        throw new Error(`Page is not loaded. ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      //console.log(data);
+      const { country } = data;
+      const { city } = data;
+      console.log(`You are in ${city}, ${country}`);
+
+      return fetch(`https://restcountries.eu/rest/v2/name/${country}`);
+    })
+    .then(response => {
+      if (!response.ok)
+        throw new Error(`Country not found(${response.status})`);
+      return response.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`Something when wrong (${err.message})`))
+    .finally(() => (countriesContainer.style.opacity = 1));
+};
+
+btn.addEventListener('click', whereAmi);
